@@ -2,7 +2,7 @@ bazel-*
 mediapipe/MediaPipe.xcodeproj
 mediapipe/MediaPipe.tulsiproj/*.tulsiconf-user
 mediapipe/provisioning_profile.mobileprovision
-mediapipe/.vs
+mediapipe-0.9.1/.vs
 node_modules/
 .configure.bazelrc
 .user.bazelrc

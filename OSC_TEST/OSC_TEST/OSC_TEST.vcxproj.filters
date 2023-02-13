@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ソース ファイル">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="ヘッダー ファイル">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="リソース ファイル">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="oscpack">
+      <UniqueIdentifier>{1f244cbd-c650-4646-8658-3fb155bd3fc9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="oscpack\ip">
+      <UniqueIdentifier>{783ebe0f-3f91-486a-831c-85d12c8a7715}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="oscpack\osc">
+      <UniqueIdentifier>{03db18f4-f6c7-4888-b3c6-6db493c2064c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="OSC_TEST.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Thirdparty\oscpack_1_1_0\osc\OscOutboundPacketStream.cpp">
+      <Filter>oscpack\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Thirdparty\oscpack_1_1_0\osc\OscPrintReceivedElements.cpp">
+      <Filter>oscpack\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Thirdparty\oscpack_1_1_0\osc\OscReceivedElements.cpp">
+      <Filter>oscpack\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Thirdparty\oscpack_1_1_0\osc\OscTypes.cpp">
+      <Filter>oscpack\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Thirdparty\oscpack_1_1_0\ip\IpEndpointName.cpp">
+      <Filter>oscpack\ip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Thirdparty\oscpack_1_1_0\ip\win32\NetworkingUtils.cpp">
+      <Filter>oscpack\ip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Thirdparty\oscpack_1_1_0\ip\win32\UdpSocket.cpp">
+      <Filter>oscpack\ip</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Thirdparty\oscpack_1_1_0\osc\MessageMappingOscPacketListener.h">
+      <Filter>oscpack\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\oscpack_1_1_0\osc\OscException.h">
+      <Filter>oscpack\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\oscpack_1_1_0\osc\OscHostEndianness.h">
+      <Filter>oscpack\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\oscpack_1_1_0\osc\OscOutboundPacketStream.h">
+      <Filter>oscpack\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\oscpack_1_1_0\osc\OscPacketListener.h">
+      <Filter>oscpack\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\oscpack_1_1_0\osc\OscPrintReceivedElements.h">
+      <Filter>oscpack\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\oscpack_1_1_0\osc\OscReceivedElements.h">
+      <Filter>oscpack\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\oscpack_1_1_0\osc\OscTypes.h">
+      <Filter>oscpack\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\oscpack_1_1_0\ip\IpEndpointName.h">
+      <Filter>oscpack\ip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\oscpack_1_1_0\ip\NetworkingUtils.h">
+      <Filter>oscpack\ip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\oscpack_1_1_0\ip\PacketListener.h">
+      <Filter>oscpack\ip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\oscpack_1_1_0\ip\TimerListener.h">
+      <Filter>oscpack\ip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thirdparty\oscpack_1_1_0\ip\UdpSocket.h">
+      <Filter>oscpack\ip</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
