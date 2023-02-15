@@ -19,6 +19,7 @@ input_side_packet: "MODEL_COMPLEXITY:model_complexity"
 # the MediaPipe framework will internally inform the downstream calculators of
 # the absence of this packet so that they don't wait for it unnecessarily.
 output_stream: "LANDMARKS:hand_landmarks"
+output_stream: "RAWLANDMARKS:raw_landmark_presence"
 
 # Hand world landmarks within the given ROI. (LandmarkList)
 # World landmarks are real-world 3D coordinates in meters with the origin in the
@@ -156,6 +157,7 @@ node {
   calculator: "TensorsToLandmarksCalculator"
   input_stream: "TENSORS:ensured_landmark_tensors"
   output_stream: "NORM_LANDMARKS:landmarks"
+  output_stream: "LANDMARKS:raw_landmarks"
   options: {
     [mediapipe.TensorsToLandmarksCalculatorOptions.ext] {
       num_landmarks: 21
@@ -166,6 +168,12 @@ node {
       normalize_z: 0.4
     }
   }
+}
+
+node {
+  calculator: "PassThroughCalculator"
+  input_stream: "LANDMARKS:raw_landmarks"
+  output_stream: "LANDMARKS:raw_landmark_presence"
 }
 
 # Adjusts landmarks (already normalized to [0.f, 1.f]) on the letterboxed hand

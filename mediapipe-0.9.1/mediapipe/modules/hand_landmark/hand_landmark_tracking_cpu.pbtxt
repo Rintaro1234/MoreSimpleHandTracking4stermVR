@@ -30,6 +30,7 @@ input_side_packet: "USE_PREV_LANDMARKS:use_prev_landmarks"
 # framework will internally inform the downstream calculators of the absence of
 # this packet so that they don't wait for it unnecessarily.
 output_stream: "LANDMARKS:multi_hand_landmarks"
+output_stream: "RAWLANDMARKS:raw_multi_hand_landmarks"
 
 # Collection of detected/predicted hand world landmarks.
 # (std::vector<LandmarkList>)
@@ -201,6 +202,7 @@ node {
   input_stream: "IMAGE:image_for_landmarks"
   input_stream: "ROI:single_hand_rect"
   output_stream: "LANDMARKS:single_hand_landmarks"
+  output_stream: "RAWLANDMARKS:raw_single_hand_landmarks"
   output_stream: "WORLD_LANDMARKS:single_hand_world_landmarks"
   output_stream: "HANDEDNESS:single_handedness"
 }
@@ -232,6 +234,13 @@ node {
   input_stream: "ITEM:single_hand_landmarks"
   input_stream: "BATCH_END:hand_rects_timestamp"
   output_stream: "ITERABLE:multi_hand_landmarks"
+}
+
+node {
+  calculator: "EndLoopLandmarkListVectorCalculator"
+  input_stream: "ITEM:raw_single_hand_landmarks"
+  input_stream: "BATCH_END:hand_rects_timestamp"
+  output_stream: "ITERABLE:raw_multi_hand_landmarks"
 }
 
 # Collects a set of world landmarks for each hand into a vector. Upon receiving

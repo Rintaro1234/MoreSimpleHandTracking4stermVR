@@ -43,6 +43,8 @@ constexpr char kOutputLandmarks[] = "output_landmarks";
 
 constexpr char kOutputHandednesses[] = "output_handedness";
 
+constexpr char kOutputWorld_Handednesses[] = "world_landmark_presence";
+
 ABSL_FLAG(std::string, calculator_graph_config_file, "",
           "Name of file containing text format CalculatorGraphConfig proto.");
 ABSL_FLAG(std::string, input_video_path, "",
@@ -52,15 +54,15 @@ ABSL_FLAG(std::string, output_video_path, "",
           "Full path of where to save result (.mp4 only). "
           "If not provided, show result in a window.");
 
+const int ONEHAND_LANDMARKS_NUM = 21 * 3;
+float handsLandmarks[sizeof(float) * ONEHAND_LANDMARKS_NUM * 2];
+
 absl::Status RunMPPGraph() {
 
     int sock;
     struct sockaddr_in addr;
     WSAData wsaData;
     struct timeval tv;
-
-    float H0_x, H0_y, H0_z;
-    float H1_x, H1_y, H1_z;
 
     WSACleanup();
     WSAStartup(MAKEWORD(2, 0), &wsaData);   //MAKEWORD(2, 0)ÇÕwinsockÇÃÉoÅ[ÉWÉáÉì2.0Ç¡ÇƒÇ±Ç∆
@@ -116,6 +118,8 @@ absl::Status RunMPPGraph() {
                     graph.AddOutputStreamPoller("landmark_presence"));
     ASSIGN_OR_RETURN(mediapipe::OutputStreamPoller poller_handednesses,
                     graph.AddOutputStreamPoller(kOutputHandednesses));
+    ASSIGN_OR_RETURN(mediapipe::OutputStreamPoller poller_world_landmarks,
+                    graph.AddOutputStreamPoller(kOutputWorld_Handednesses));
     MP_RETURN_IF_ERROR(graph.StartRun({}));
 
     LOG(INFO) << "Start grabbing and processing frames.";
@@ -156,8 +160,10 @@ absl::Status RunMPPGraph() {
         // Get the graph result packet, or stop if that fails.
         mediapipe::Packet packet;
         mediapipe::Packet packet_landmarks;
+        mediapipe::Packet packet_world_landmarks;
         mediapipe::Packet presence_packet;
         mediapipe::Packet packet_handednesses;
+       
     
         std::cout << "HERE 0" << std::endl;
 
@@ -168,38 +174,38 @@ absl::Status RunMPPGraph() {
         if (!presence_poller.Next(&presence_packet)) break;
         auto is_landmark_present = presence_packet.Get<bool>();
         if (is_landmark_present) 
-            if (poller_landmarks.Next(&packet_landmarks) && poller_handednesses.Next(&packet_handednesses))
+            if (poller_landmarks.Next(&packet_landmarks) && poller_world_landmarks.Next(&packet_world_landmarks) && poller_handednesses.Next(&packet_handednesses))
             {
                 auto& output_handedness = packet_handednesses.Get<std::vector<mediapipe::ClassificationList, std::allocator<mediapipe::ClassificationList>>>();
                 auto& output_landmarks = packet_landmarks.Get<std::vector<mediapipe::NormalizedLandmarkList>>();
+                auto& output_world_landmarks = packet_world_landmarks.Get<std::vector<mediapipe::LandmarkList>>();
                 //output_landmarks[0].PrintDebugString();
-                if (output_landmarks.size() == output_handedness.size()) {
+                if (output_landmarks.size() == output_handedness.size() && output_handedness.size() == output_world_landmarks.size()) {
                     for (int i = 0; i < output_handedness.size(); i++) {
                         if (output_handedness[i].classification()[0].label()[0] == 'R') {
-                            H0_x = output_landmarks[i].landmark(0).x();
-                            H0_y = output_landmarks[i].landmark(0).y();
-                            H0_z = output_landmarks[i].landmark(0).z();
                             for (int j = 0; j < output_landmarks[i].landmark_size(); j++){
-                                printf("[%2d]{\n    x:%f\n    y:%f\n    z:%f\n}\n",
+                                handsLandmarks[j * 3 + 0] = output_world_landmarks[i].landmark(j).x();
+                                handsLandmarks[j * 3 + 1] = output_world_landmarks[i].landmark(j).y();
+                                handsLandmarks[j * 3 + 2] = output_world_landmarks[i].landmark(j).z();
+                                printf("[%2d]{\n    (%f ,%f, %f)\n}\n",
                                     j,
-                                    output_landmarks[i].landmark(j).x(),
-                                    output_landmarks[i].landmark(j).y(),
-                                    output_landmarks[i].landmark(j).z()
+                                    handsLandmarks[j * 3 + 0],
+                                    handsLandmarks[j * 3 + 1],
+                                    handsLandmarks[j * 3 + 2]
                                 );
                             }
                         }
                         if (output_handedness[i].classification()[0].label()[0] == 'L') {
-                            H1_x = output_landmarks[i].landmark(0).x();
-                            H1_y = output_landmarks[i].landmark(0).y();
-                            H1_z = output_landmarks[i].landmark(0).z();
+                            for (int j = 0; j < output_landmarks[i].landmark_size(); j++) {
+                                handsLandmarks[ONEHAND_LANDMARKS_NUM + j * 3 + 0] = output_world_landmarks[i].landmark(j).x();
+                                handsLandmarks[ONEHAND_LANDMARKS_NUM + j * 3 + 1] = output_world_landmarks[i].landmark(j).y();
+                                handsLandmarks[ONEHAND_LANDMARKS_NUM + j * 3 + 2] = output_world_landmarks[i].landmark(j).z();
+                            }
                         }
                     }
                 }
             }
-        char buff[512];
-        sprintf_s(buff, "%lf %lf %lf %lf %lf %lf", H0_x, H0_y, H0_z, H1_x, H1_y, H1_z);
-        std::cout << buff << std::endl;
-        sendto(sock, buff, sizeof(buff), 0, (struct sockaddr*)&addr, sizeof(addr));
+        sendto(sock, (const char *)handsLandmarks, sizeof(float) * ONEHAND_LANDMARKS_NUM * 2, 0, (struct sockaddr*)&addr, sizeof(addr));
        
         std::cout << "HERE 2" << std::endl;
 

@@ -1,6 +1,4 @@
 ﻿  OSC_TEST.cpp
-c:\users\rinna\source\repos\osc_test\osc_test\osc_test.cpp(28): warning C4244: '初期化中': 'SOCKET' から 'int' への変換です。データが失われる可能性があります。
-c:\users\rinna\source\repos\osc_test\osc_test\osc_test.cpp(30): warning C4244: '=': 'SOCKET' から 'int' への変換です。データが失われる可能性があります。
-c:\users\rinna\source\repos\osc_test\osc_test\osc_test.cpp(45): warning C4474: 'sscanf_s': 書式文字列に渡された引数の数が多すぎます
-  c:\users\rinna\source\repos\osc_test\osc_test\osc_test.cpp(45): note: プレースホルダーとそのパラメーターには 6 の可変個引数が必要ですが、7 が指定されています。
-  OSC_TEST.vcxproj -> C:\Users\rinna\source\repos\OSC_TEST\x64\Debug\OSC_TEST.exe
+C:\Users\rinna\Documents\Cpp\MoreSimpleHandTracking4stermVR\OSC_TEST\OSC_TEST\OSC_TEST.cpp(28,11): warning C4244: '初期化中': 'SOCKET' から 'int' への変換です。データが失われる可能性があります。
+C:\Users\rinna\Documents\Cpp\MoreSimpleHandTracking4stermVR\OSC_TEST\OSC_TEST\OSC_TEST.cpp(30,15): warning C4244: '=': 'SOCKET' から 'int' への変換です。データが失われる可能性があります。
+  OSC_TEST.vcxproj -> C:\Users\rinna\Documents\Cpp\MoreSimpleHandTracking4stermVR\OSC_TEST\x64\Debug\OSC_TEST.exe

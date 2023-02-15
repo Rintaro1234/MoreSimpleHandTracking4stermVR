@@ -36,15 +36,14 @@ void sendOSCMessage(int id, float x, float y, float z)
 	addr.sin_addr.S_un.S_addr = inet_addr("127.0.0.2"); // INADDR_ANYはすべてのアドレスからのパケットを受信する
 	bind(sock, (struct sockaddr *)&addr, sizeof(addr));
 
+	const int ONEHAND_LANDMARKS_NUM = 21 * 3;
+	float handsLandmarks[sizeof(float) * ONEHAND_LANDMARKS_NUM * 2];
+	memset((char*)handsLandmarks, 0, sizeof(float) * ONEHAND_LANDMARKS_NUM * 2);
+
 	while (1) {
-		char buff[512];
-		memset(buff, 0, sizeof(buff));
-		recv(sock, buff, sizeof(buff), 0);
-		float H0_x, H0_y, H0_z;
-		float H1_x, H1_y, H1_z;
-		sscanf_s(buff, "%f %f %f %f %f %f", &H0_x, &H0_y, &H0_z, &H1_x, &H1_y, &H1_z, (unsigned)sizeof(buff));
-		std::cout << buff << std::endl;
-		std::cout << "(" << H0_x << "," << H0_y << "," << H0_z << "),(" << H1_x << "," << H1_y << "," << H1_z << ")" << std::endl;
+		recv(sock, (char*)handsLandmarks, sizeof(float) * ONEHAND_LANDMARKS_NUM * 2, 0);
+
+		std::cout << "(" << handsLandmarks[0] << "," << handsLandmarks[1] << "," << handsLandmarks[2] << "),(" << handsLandmarks[ONEHAND_LANDMARKS_NUM + 0] << "," << handsLandmarks[ONEHAND_LANDMARKS_NUM + 1] << "," << handsLandmarks[ONEHAND_LANDMARKS_NUM + 2] << ")" << std::endl;
 
 		// Set IPAddress and Port
 		const std::string ipAddress = "127.0.0.1";
@@ -56,8 +55,8 @@ void sendOSCMessage(int id, float x, float y, float z)
 		osc::OutboundPacketStream p(buffer, 6144);
 		p << osc::BeginBundleImmediate
 			//Head
-			<< osc::BeginMessage("/VMT/Room/Unity") << 2 << 2 << 0.0f << H0_x*2-1 << 2-H0_y*2 << 0.3f << 0.0f << 0.0f << 0.0f << 0.0f << osc::EndMessage
-			<< osc::BeginMessage("/VMT/Room/Unity") << 1 << 1 << 0.0f << H1_x * 2 - 1 << 2 - H1_y * 2 << 0.3f << 0.0f << 0.0f << 0.0f << 0.0f << osc::EndMessage
+			<< osc::BeginMessage("/VMT/Room/Unity") << 2 << 2 << 0.0f << handsLandmarks[0] *0.001 - 1 << 2- handsLandmarks[1] * 0.001 << 0.3f << 0.0f << 0.0f << 0.0f << 0.0f << osc::EndMessage
+			<< osc::BeginMessage("/VMT/Room/Unity") << 1 << 1 << 0.0f << handsLandmarks[ONEHAND_LANDMARKS_NUM+0] *0.001 - 1 << 2- handsLandmarks[ONEHAND_LANDMARKS_NUM + 1] *0.001 << 0.3f << 0.0f << 0.0f << 0.0f << 0.0f << osc::EndMessage
 			<< osc::EndBundle;
 		transmitSocket.Send(p.Data(), p.Size());
 		Sleep(1000 / 30);
