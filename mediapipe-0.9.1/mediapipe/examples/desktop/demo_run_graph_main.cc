@@ -54,8 +54,8 @@ ABSL_FLAG(std::string, output_video_path, "",
           "Full path of where to save result (.mp4 only). "
           "If not provided, show result in a window.");
 
-const int ONEHAND_LANDMARKS_NUM = 21 * 3;
-float handsLandmarks[sizeof(float) * ONEHAND_LANDMARKS_NUM * 2];
+const int ONEHAND_LANDMARKS_NUM = 22 * 3;
+double handsLandmarks[ONEHAND_LANDMARKS_NUM * 2];
 
 absl::Status RunMPPGraph() {
 
@@ -187,25 +187,32 @@ absl::Status RunMPPGraph() {
                                 handsLandmarks[j * 3 + 0] = output_world_landmarks[i].landmark(j).x();
                                 handsLandmarks[j * 3 + 1] = output_world_landmarks[i].landmark(j).y();
                                 handsLandmarks[j * 3 + 2] = output_world_landmarks[i].landmark(j).z();
-                                printf("[%2d]{\n    (%f ,%f, %f)\n}\n",
-                                    j,
-                                    handsLandmarks[j * 3 + 0],
-                                    handsLandmarks[j * 3 + 1],
-                                    handsLandmarks[j * 3 + 2]
-                                );
                             }
+                            handsLandmarks[ONEHAND_LANDMARKS_NUM - 3] = output_landmarks[i].landmark(0).x();
+                            handsLandmarks[ONEHAND_LANDMARKS_NUM - 2] = output_landmarks[i].landmark(0).y();
+                            handsLandmarks[ONEHAND_LANDMARKS_NUM - 1] = output_landmarks[i].landmark(0).z();
                         }
                         if (output_handedness[i].classification()[0].label()[0] == 'L') {
                             for (int j = 0; j < output_landmarks[i].landmark_size(); j++) {
                                 handsLandmarks[ONEHAND_LANDMARKS_NUM + j * 3 + 0] = output_world_landmarks[i].landmark(j).x();
                                 handsLandmarks[ONEHAND_LANDMARKS_NUM + j * 3 + 1] = output_world_landmarks[i].landmark(j).y();
                                 handsLandmarks[ONEHAND_LANDMARKS_NUM + j * 3 + 2] = output_world_landmarks[i].landmark(j).z();
+
+                                /*printf("[%2d]{\n    (%f ,%f, %f)\n}\n",
+                                    j,
+                                    handsLandmarks[ONEHAND_LANDMARKS_NUM + j * 3 + 0],
+                                    handsLandmarks[ONEHAND_LANDMARKS_NUM + j * 3 + 1],
+                                    handsLandmarks[ONEHAND_LANDMARKS_NUM + j * 3 + 2]
+                                );*/
                             }
+                            handsLandmarks[ONEHAND_LANDMARKS_NUM * 2 - 3] = output_landmarks[i].landmark(0).x();
+                            handsLandmarks[ONEHAND_LANDMARKS_NUM * 2 - 2] = output_landmarks[i].landmark(0).y();
+                            handsLandmarks[ONEHAND_LANDMARKS_NUM * 2 - 1] = output_landmarks[i].landmark(0).z();
                         }
                     }
                 }
             }
-        sendto(sock, (const char *)handsLandmarks, sizeof(float) * ONEHAND_LANDMARKS_NUM * 2, 0, (struct sockaddr*)&addr, sizeof(addr));
+        sendto(sock, (const char *)handsLandmarks, sizeof(double) * ONEHAND_LANDMARKS_NUM * 2, 0, (struct sockaddr*)&addr, sizeof(addr));
        
         std::cout << "HERE 2" << std::endl;
 
