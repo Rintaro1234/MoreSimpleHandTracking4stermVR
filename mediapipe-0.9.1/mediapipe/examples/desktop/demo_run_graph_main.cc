@@ -125,7 +125,7 @@ absl::Status RunMPPGraph() {
     LOG(INFO) << "Start grabbing and processing frames.";
     bool grab_frames = true;
     while (grab_frames) {
-        Sleep(1000 / 1000);
+        Sleep(1000 / 30);
         // Capture opencv camera or video frame.
         cv::Mat camera_frame_raw;
         capture >> camera_frame_raw;

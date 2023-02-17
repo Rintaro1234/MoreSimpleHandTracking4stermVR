@@ -82,6 +82,24 @@ double dot4vec3(Vector3_t a, Vector3_t b) {
 	return  a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
+// データを送信
+void sendVMTMessage(int index, int enable, float timeoffset, Vector3_t position, Vector3_t q, float rotate) {
+	// Set IPAddress and Port
+	const std::string ipAddress = "127.0.0.1";
+	const int port = 39570;
+
+	UdpTransmitSocket transmitSocket(IpEndpointName(ipAddress.c_str(), port));
+	//Buffer
+	char buffer[6144];
+
+	osc::OutboundPacketStream p(buffer, 6144);
+	p << osc::BeginBundleImmediate
+		//Head
+		<< osc::BeginMessage("/VMT/Room/Unity") << index << enable << timeoffset << (float)position.x << (float)position.y << (float)position.z << (float)q.x << (float)q.y << (float)q.z << (float)rotate << osc::EndMessage
+		<< osc::EndBundle;
+	transmitSocket.Send(p.Data(), p.Size());
+}
+
 void sendOSCMessage(int id, double x, double y, double z)
 {
 
@@ -105,7 +123,8 @@ void sendOSCMessage(int id, double x, double y, double z)
 
 	// 手の甲の法線を求める
 	Vector3_t rhand_normal, lhand_normal;
-	Vector3_t base_rhand_normal = {0.485473,-0.436747,0.757343}, base_lhand_normal = {0.111741,0.405115,-0.907411};
+	Vector3_t base_rhand_normal = { 0.336681,-0.874382,0.349430 },
+			  base_lhand_normal = { 0,1,0 };
 
 	while (1) {
 		// 受信
@@ -117,31 +136,23 @@ void sendOSCMessage(int id, double x, double y, double z)
 
 			//2転換のベクトルから外積で法線を求める
 			Vector3_t O, A, B;
-			O = Vector3_t{ handsLandmarks_R[0].x, handsLandmarks_R[0].y, handsLandmarks_R[0].z };
-			A = Vector3_t{ handsLandmarks_R[5].x, handsLandmarks_R[5].y, handsLandmarks_R[5].z };
-			B = Vector3_t{ handsLandmarks_R[17].x, handsLandmarks_R[17].y, handsLandmarks_R[17].z };
-			rhand_normal = crossProduct4vec3(A-O, B-O);
+			O = handsLandmarks_R[0];
+			A = handsLandmarks_R[5];
+			B = handsLandmarks_R[17];
+			rhand_normal = crossProduct4vec3(A-O, B-O).normalize();
 
-			O = Vector3_t{ handsLandmarks_L[0].x, handsLandmarks_L[0].y, handsLandmarks_L[0].z };
-			A = Vector3_t{ handsLandmarks_L[5].x, handsLandmarks_L[5].y, handsLandmarks_L[5].z };
-			B = Vector3_t{ handsLandmarks_L[17].x, handsLandmarks_L[17].y, handsLandmarks_L[17].z };
-			lhand_normal = crossProduct4vec3(A - O, B - O);
-
-			printf("(%4lf,%4lf,%4lf)\n(%4lf,%4lf,%4lf)\n(%4lf,%4lf,%4lf)\n(%4lf,%4lf,%4lf)\n",
-				handsLandmarks_R[0].x, handsLandmarks_R[0].y, handsLandmarks_R[0].z,
-				handsLandmarks_R[17].x, handsLandmarks_R[17].y, handsLandmarks_R[17].z,
-				handsLandmarks_R[5].x, handsLandmarks_R[5].y, handsLandmarks_R[5].z,
-				lhand_normal.normalize().x, lhand_normal.normalize().y, lhand_normal.normalize().z);
+			O = handsLandmarks_L[0];
+			A = handsLandmarks_L[5];
+			B = handsLandmarks_L[17];
+			lhand_normal = crossProduct4vec3(A - O, B - O).normalize();
 
 			// 回転の方向ベクトルの計算
-			hand_R.rotationAxis = Vector3_t{ 1, 1, -(rhand_normal.x + rhand_normal.y) / rhand_normal.z }.normalize();
-			hand_L.rotationAxis = Vector3_t{ 1, 1, -(lhand_normal.x + lhand_normal.y) / lhand_normal.z }.normalize();
-			printf("(%4lf,%4lf,%4lf)\n", hand_R.rotationAxis.x, hand_R.rotationAxis.y, hand_R.rotationAxis.z);
+			hand_R.rotationAxis = crossProduct4vec3(rhand_normal, base_rhand_normal).normalize();
+			hand_L.rotationAxis = crossProduct4vec3(lhand_normal, base_lhand_normal).normalize();
 
 			// 回転角度の計算。前回の角度との内積
-			double sita_R = -std::acos(dot4vec3(rhand_normal, base_rhand_normal) / (rhand_normal.absolute() * base_rhand_normal.absolute()));
+			double sita_R = std::acos(dot4vec3(rhand_normal, base_rhand_normal) / (rhand_normal.absolute() * base_rhand_normal.absolute()));
 			double sita_L = std::acos(dot4vec3(lhand_normal, base_lhand_normal) / (lhand_normal.absolute() * base_lhand_normal.absolute()));
-			printf("R:%4lf L:%4lf\n", sita_R / 3.14 * 180, sita_L / 3.14 * 180);
 
 			// 回転の方向ベクトルの長さを回転角度に置き換え
 			double sin_r = std::sin(sita_R/2);
@@ -154,17 +165,35 @@ void sendOSCMessage(int id, double x, double y, double z)
 			double cos_l = std::cos(sita_L/2);
 			hand_L.rotationAxis = hand_L.rotationAxis * sin_l;
 			hand_L.rotateSita = cos_l;			
+
+			printf("R[0](%4lf,%4lf,%4lf)\nR[5](%4lf,%4lf,%4lf)\nR[17](%4lf,%4lf,%4lf)\nR_N(%4lf,%4lf,%4lf)\n",
+				handsLandmarks_R[0].x, handsLandmarks_R[0].y, handsLandmarks_R[0].z,
+				handsLandmarks_R[5].x, handsLandmarks_R[5].y, handsLandmarks_R[5].z,
+				handsLandmarks_R[17].x, handsLandmarks_R[17].y, handsLandmarks_R[17].z,
+				rhand_normal.x, rhand_normal.y, rhand_normal.z);
+
+			printf("L[0](%4lf,%4lf,%4lf)\nL[5](%4lf,%4lf,%4lf)\nL[17](%4lf,%4lf,%4lf)\nL_N(%4lf,%4lf,%4lf)\n",
+				handsLandmarks_L[0].x, handsLandmarks_L[0].y, handsLandmarks_L[0].z,
+				handsLandmarks_L[5].x, handsLandmarks_L[5].y, handsLandmarks_L[5].z,
+				handsLandmarks_L[17].x, handsLandmarks_L[17].y, handsLandmarks_L[17].z,
+				lhand_normal.x, lhand_normal.y, lhand_normal.z);
+
+			printf("R:%4lf L:%4lf\n", sita_R / 3.14 * 180, sita_L / 3.14 * 180);
+		}
+		
+		// 位置を求める
+		{
+			hand_R.position = Vector3_t{ handsLandmarks_R[ONEHAND_LANDMARKS_NUM - 1].x * 2 - 1, 2 - handsLandmarks_R[ONEHAND_LANDMARKS_NUM - 1].y * 2, 0.3f };
+			hand_L.position = Vector3_t{ handsLandmarks_L[ONEHAND_LANDMARKS_NUM - 1].x * 2 - 1, 2 - handsLandmarks_L[ONEHAND_LANDMARKS_NUM - 1].y * 2, 0.3f };
 		}
 
-		// デバック表示
+		// 手の位置を送信する
+		sendVMTMessage(3, 3, 0.0f, hand_R.position, hand_R.rotationAxis, hand_R.rotateSita);
+		static double ro = 0;
+		ro += 0.01;
+		//sendVMTMessage(3, 3, 0.0f, zero, Vector3_t{ 0, 1*std::sin(ro), 0}, std::cos(ro));
+		//sendVMTMessage(2, 2, 0.0f, hand_L.position, hand_L.rotationAxis, hand_L.rotateSita);
 
-		std::cout << "(" << hand_R.rotationAxis.x << "," << hand_R.rotationAxis.y << "," << hand_R.rotationAxis.z << "," << hand_R.rotateSita << "),(" << hand_L.rotationAxis.x << "," << hand_L.rotationAxis.y << "," << hand_L.rotationAxis.z << "," << hand_L.rotateSita << ")" << std::endl;
-
-		// 手の位置を求める
-
-
-
-		// Set IPAddress and Port
 		const std::string ipAddress = "127.0.0.1";
 		const int port = 39570;
 
@@ -172,13 +201,13 @@ void sendOSCMessage(int id, double x, double y, double z)
 		//Buffer
 		char buffer[6144];
 
-		osc::OutboundPacketStream p(buffer, 6144);
+		/*osc::OutboundPacketStream p(buffer, 6144);
 		p << osc::BeginBundleImmediate
 			//Head
-			<< osc::BeginMessage("/VMT/Room/Unity") << 3 << 3 << 0.0f << (float)handsLandmarks_R[ONEHAND_LANDMARKS_NUM - 1].x * 2 - 1 << 2 - (float)handsLandmarks_R[ONEHAND_LANDMARKS_NUM - 1].y * 2 << 0.3f << (float)hand_R.rotationAxis.x << (float)hand_R.rotationAxis.y << (float)hand_R.rotationAxis.y << (float)hand_R.rotateSita << osc::EndMessage
-			<< osc::BeginMessage("/VMT/Room/Unity") << 2 << 2 << 0.0f << (float)handsLandmarks_L[ONEHAND_LANDMARKS_NUM - 1].x * 2 - 1 << 2 - (float)handsLandmarks_L[ONEHAND_LANDMARKS_NUM - 1].y * 2 << 0.3f << (float)hand_L.rotationAxis.x << (float)hand_L.rotationAxis.y << (float)hand_L.rotationAxis.y << (float)hand_L.rotateSita << osc::EndMessage
+			<< osc::BeginMessage("/VMT/Room/Unity") << (float)handsLandmarks_R[0].x << (float)handsLandmarks_R[0].y << (float)handsLandmarks_R[0].z << (float)handsLandmarks_R[5].x << (float)handsLandmarks_R[5].y << (float)handsLandmarks_R[5].z << (float)handsLandmarks_R[17].x << (float)handsLandmarks_R[17].y << (float)handsLandmarks_R[17].z << 0 << osc::EndMessage
 			<< osc::EndBundle;
-		transmitSocket.Send(p.Data(), p.Size());
+		transmitSocket.Send(p.Data(), p.Size());*/
+		
 		Sleep(1000 / 30);
 	}
 }

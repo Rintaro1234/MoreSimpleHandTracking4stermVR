@@ -2,6 +2,8 @@
 C:\Users\rinna\Documents\Cpp\MoreSimpleHandTracking4stermVR\OSC_TEST\OSC_TEST\OSC_TEST.cpp(41,2): warning C4091: 'typedef ': 変数が何も宣言されていないときは、'Vector3_t' の左辺を無視します。
 C:\Users\rinna\Documents\Cpp\MoreSimpleHandTracking4stermVR\OSC_TEST\OSC_TEST\OSC_TEST.cpp(52,2): warning C4091: 'typedef ': 変数が何も宣言されていないときは、'hand_t' の左辺を無視します。
 C:\Users\rinna\Documents\Cpp\MoreSimpleHandTracking4stermVR\OSC_TEST\OSC_TEST\OSC_TEST.cpp(55,29): warning C4305: '初期化中': 'double' から 'float' へ切り詰めます。
-C:\Users\rinna\Documents\Cpp\MoreSimpleHandTracking4stermVR\OSC_TEST\OSC_TEST\OSC_TEST.cpp(90,11): warning C4244: '初期化中': 'SOCKET' から 'int' への変換です。データが失われる可能性があります。
-C:\Users\rinna\Documents\Cpp\MoreSimpleHandTracking4stermVR\OSC_TEST\OSC_TEST\OSC_TEST.cpp(92,15): warning C4244: '=': 'SOCKET' から 'int' への変換です。データが失われる可能性があります。
+C:\Users\rinna\Documents\Cpp\MoreSimpleHandTracking4stermVR\OSC_TEST\OSC_TEST\OSC_TEST.cpp(108,11): warning C4244: '初期化中': 'SOCKET' から 'int' への変換です。データが失われる可能性があります。
+C:\Users\rinna\Documents\Cpp\MoreSimpleHandTracking4stermVR\OSC_TEST\OSC_TEST\OSC_TEST.cpp(110,15): warning C4244: '=': 'SOCKET' から 'int' への変換です。データが失われる可能性があります。
+C:\Users\rinna\Documents\Cpp\MoreSimpleHandTracking4stermVR\OSC_TEST\OSC_TEST\OSC_TEST.cpp(191,74): warning C4244: '引数': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\rinna\Documents\Cpp\MoreSimpleHandTracking4stermVR\OSC_TEST\OSC_TEST\OSC_TEST.cpp(202,8): warning C4101: 'buffer': ローカル変数は 1 度も使われていません。
   OSC_TEST.vcxproj -> C:\Users\rinna\Documents\Cpp\MoreSimpleHandTracking4stermVR\OSC_TEST\x64\Debug\OSC_TEST.exe
